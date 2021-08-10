@@ -139,6 +139,7 @@ public class RentRegion extends CountdownRegion {
             this.giveLandlordMoney(extensionCost);
         }
         player.sendMessage(successMessage);
+        player.sendMessage("Successfully bought");
     }
 
     @Override

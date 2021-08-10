@@ -67,7 +67,6 @@ public class SignClickListener implements Listener {
                     | ProtectionOfContinuanceException e) {
                 if (e.hasMessage()) {
                     player.sendMessage(Messages.PREFIX + e.getMessage());
-                    player.sendMessage("We're here!");
                 }
             }
             return;

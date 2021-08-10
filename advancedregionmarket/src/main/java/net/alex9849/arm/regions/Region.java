@@ -725,6 +725,7 @@ public abstract class Region implements Saveable {
             }
         }
         player.sendMessage(Messages.PREFIX + Messages.REGION_BUYMESSAGE);
+        player.sendMessage("Successfully bought");
 
         if (!isNoMoneyTransfer) {
             AdvancedRegionMarket.getInstance().getEcon().withdrawPlayer(player, this.getPricePerPeriod());
