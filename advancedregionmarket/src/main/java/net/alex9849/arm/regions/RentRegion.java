@@ -9,12 +9,14 @@ import net.alex9849.arm.minifeatures.teleporter.Teleporter;
 import net.alex9849.arm.regions.price.Autoprice.AutoPrice;
 import net.alex9849.arm.regions.price.Price;
 import net.alex9849.arm.regions.price.RentPrice;
+import net.alex9849.arm.util.CountablePermission;
 import net.alex9849.arm.util.TimeUtil;
 import net.alex9849.arm.util.stringreplacer.StringCreator;
 import net.alex9849.arm.util.stringreplacer.StringReplacer;
 import net.alex9849.inter.WGRegion;
 import net.alex9849.signs.SignData;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -105,14 +107,20 @@ public class RentRegion extends CountdownRegion {
             throw new RegionNotOwnException(Messages.REGION_NOT_OWN);
         }
 
+        CountablePermission discounts = new CountablePermission("arm.discount", player);
+        double totalPrice = discounts.hasAny()
+                ? (1 - discounts.getMax() / 100) * this.getCurrentExtendPrice()
+                : this.getCurrentExtendPrice();
+
         PreExtendEvent preExtendEvent = new PreExtendEvent(this);
         Bukkit.getServer().getPluginManager().callEvent(preExtendEvent);
         if(preExtendEvent.isCancelled()) {
             return;
         }
+
         boolean isNoMoneyTransfer = preExtendEvent.isNoMoneyTransfer();
 
-        if (!isNoMoneyTransfer && AdvancedRegionMarket.getInstance().getEcon().getBalance(player) < this.getCurrentExtendPrice()) {
+        if (!isNoMoneyTransfer && AdvancedRegionMarket.getInstance().getEcon().getBalance(player) < totalPrice) {
             throw new NotEnoughMoneyException(this.replaceVariables(Messages.NOT_ENOUGH_MONEY));
         }
 
@@ -121,7 +129,6 @@ public class RentRegion extends CountdownRegion {
         // we want to replace after the extension. So we first replace
         // with the local replacer and after successful extension we
         // replace with the normal replace method.
-        double extensionCost = this.getCurrentExtendPrice();
         String successMessage = Messages.PREFIX + this.stringReplacer.replace(Messages.RENT_EXTEND_MESSAGE);
         this.extend();
         successMessage = this.replaceVariables(successMessage);
@@ -135,8 +142,13 @@ public class RentRegion extends CountdownRegion {
             }
         }
         if(!isNoMoneyTransfer) {
-            AdvancedRegionMarket.getInstance().getEcon().withdrawPlayer(player, extensionCost);
-            this.giveLandlordMoney(extensionCost);
+            AdvancedRegionMarket.getInstance().getEcon().withdrawPlayer(player, totalPrice);
+            this.giveLandlordMoney(totalPrice);
+
+            // If discounted, let's tell them they saved some money
+            if (discounts.hasAny())
+                player.sendMessage(Messages.PREFIX + ChatColor.translateAlternateColorCodes('&',
+                        "&aYou saved &n" + discounts.getMax() + "%&a on this purchase!"));
         }
         player.sendMessage(successMessage);
         player.sendMessage("Successfully bought");

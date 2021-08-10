@@ -730,8 +730,8 @@ public abstract class Region implements Saveable {
                 }
             }
         }
+
         player.sendMessage(Messages.PREFIX + Messages.REGION_BUYMESSAGE);
-        player.sendMessage("Successfully bought");
 
         if (!isNoMoneyTransfer) {
             AdvancedRegionMarket.getInstance().getEcon().withdrawPlayer(player, totalPrice);
@@ -739,7 +739,8 @@ public abstract class Region implements Saveable {
 
             // If discounted, let's tell them they saved some money
             if (discounts.hasAny())
-                player.sendMessage(Messages.PREFIX + "&aYou saved &n" + discounts.getMax() + "%&a on this purchase!");
+                player.sendMessage(Messages.PREFIX + ChatColor.translateAlternateColorCodes('&',
+                        "&aYou saved &n" + discounts.getMax() + "%&a on this purchase!"));
         }
     }
 
