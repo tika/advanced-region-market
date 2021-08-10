@@ -150,8 +150,8 @@ public class RentRegion extends CountdownRegion {
                 player.sendMessage(Messages.PREFIX + ChatColor.translateAlternateColorCodes('&',
                         "&aYou saved &n" + discounts.getMax() + "%&a on this purchase!"));
         }
+
         player.sendMessage(successMessage);
-        player.sendMessage("Successfully bought");
     }
 
     @Override
