@@ -19,6 +19,7 @@ import net.alex9849.arm.minifeatures.teleporter.Teleporter;
 import net.alex9849.arm.regionkind.RegionKind;
 import net.alex9849.arm.regions.price.Autoprice.AutoPrice;
 import net.alex9849.arm.regions.price.Price;
+import net.alex9849.arm.util.CountablePermission;
 import net.alex9849.arm.util.Saveable;
 import net.alex9849.arm.util.TimeUtil;
 import net.alex9849.arm.util.stringreplacer.StringCreator;
@@ -705,12 +706,17 @@ public abstract class Region implements Saveable {
         }
         isPlayerInLimit = preBuyEvent.isPlayerInLimit();
         boolean isNoMoneyTransfer = preBuyEvent.isNoMoneyTransfer();
+        CountablePermission discounts = new CountablePermission("arm.discount", player);
+
+        double totalPrice = discounts.hasAny()
+                ? (discounts.getMax() / 100) * this.getPricePerPeriod()
+                : this.getPricePerPeriod();
 
         if (!isPlayerInLimit) {
             throw new OutOfLimitExeption(this.replaceVariables(Messages.REGION_BUY_OUT_OF_LIMIT));
         }
 
-        if (!isNoMoneyTransfer && AdvancedRegionMarket.getInstance().getEcon().getBalance(player) < this.getPricePerPeriod()) {
+        if (!isNoMoneyTransfer && AdvancedRegionMarket.getInstance().getEcon().getBalance(player) < totalPrice) {
             throw new NotEnoughMoneyException(this.replaceVariables(Messages.NOT_ENOUGH_MONEY));
         }
 
@@ -728,8 +734,12 @@ public abstract class Region implements Saveable {
         player.sendMessage("Successfully bought");
 
         if (!isNoMoneyTransfer) {
-            AdvancedRegionMarket.getInstance().getEcon().withdrawPlayer(player, this.getPricePerPeriod());
-            this.giveLandlordMoney(this.getPricePerPeriod());
+            AdvancedRegionMarket.getInstance().getEcon().withdrawPlayer(player, totalPrice);
+            this.giveLandlordMoney(totalPrice);
+
+            // If discounted, let's tell them they saved some money
+            if (discounts.hasAny())
+                player.sendMessage(Messages.PREFIX + "&aYou saved &n" + discounts.getMax() + "%&a on this purchase!");
         }
     }
 

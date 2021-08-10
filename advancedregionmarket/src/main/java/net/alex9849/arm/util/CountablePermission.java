@@ -45,14 +45,14 @@ public class CountablePermission {
         return perms.size() > 0;
     }
 
-    public int getMax() {
+    public double getMax() {
         int max = Integer.MIN_VALUE;
         for (int x : counts)
             if (x > max) max = x;
         return max;
     }
 
-    public int getMin() {
+    public double getMin() {
         int min = Integer.MAX_VALUE;
         for (int x : counts)
             if (x < min) min = x;
