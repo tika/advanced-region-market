@@ -146,6 +146,9 @@ public class RentRegion extends CountdownRegion {
                 }
             }
         }
+
+        player.sendMessage(successMessage);
+
         if(!isNoMoneyTransfer) {
             AdvancedRegionMarket.getInstance().getEcon().withdrawPlayer(player, totalPrice);
             this.giveLandlordMoney(totalPrice);
@@ -155,8 +158,6 @@ public class RentRegion extends CountdownRegion {
                 player.sendMessage(Messages.PREFIX + ChatColor.translateAlternateColorCodes('&',
                         "&aYou saved &n" + discounts.getMax() + "%&a on this purchase!"));
         }
-
-        player.sendMessage(successMessage);
     }
 
     @Override
