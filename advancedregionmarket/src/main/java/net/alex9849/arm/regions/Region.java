@@ -709,7 +709,7 @@ public abstract class Region implements Saveable {
         CountablePermission discounts = new CountablePermission("arm.discount", player);
 
         double totalPrice = discounts.hasAny()
-                ? (discounts.getMax() / 100) * this.getPricePerPeriod()
+                ? (1 - discounts.getMax() / 100) * this.getPricePerPeriod()
                 : this.getPricePerPeriod();
 
         if (!isPlayerInLimit) {
