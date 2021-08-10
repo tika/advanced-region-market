@@ -129,7 +129,12 @@ public class RentRegion extends CountdownRegion {
         // we want to replace after the extension. So we first replace
         // with the local replacer and after successful extension we
         // replace with the normal replace method.
-        String successMessage = Messages.PREFIX + this.stringReplacer.replace(Messages.RENT_EXTEND_MESSAGE);
+
+        // Let's replace the price with the correct new one before the stringreplacer does it
+        String successMessage = Messages.PREFIX + this.stringReplacer.replace(
+                Messages.RENT_EXTEND_MESSAGE.replaceAll("%price-current%", Price.formatPrice(totalPrice))
+        );
+
         this.extend();
         successMessage = this.replaceVariables(successMessage);
         if (AdvancedRegionMarket.getInstance().getPluginSettings().isTeleportAfterRentRegionExtend()) {
